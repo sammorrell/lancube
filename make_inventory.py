@@ -15,6 +15,7 @@ from lights_distance import *
 import warnings
 import datetime
 import yaml
+from io import StringIO
 warnings.filterwarnings("ignore",category=RuntimeWarning)
 pd.options.mode.chained_assignment = None
 
@@ -29,9 +30,15 @@ h = p['h']
 K = p['K']
 prec_localisation = p['prec_localisation']
 
-
+# First load the data in and remove null characters.
+# This is being inputted by the LANcube during recording and will prevent the
+# rest of the pipeline from working. 
+with open(f"{filename}", 'r') as fh:
+    input_text = fh.read()
+input_text = input_text.replace('\x00', '')
 # Reading Lan3 datas
-df = pd.read_csv(f"{filename}", sep=',', on_bad_lines='skip')
+# df = pd.read_csv(f"{filename}", sep=',', on_bad_lines='skip')
+df = pd.read_csv(StringIO(input_text), sep=',', on_bad_lines='skip')
 df['Value'] = df['Clear'] / df['Gain'] / df['AcquisitionTime(ms)']
 
 
