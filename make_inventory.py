@@ -63,9 +63,12 @@ df_initial = pd.concat([df1, df3, df5], ignore_index=True)
 
 
 # Remove the first 10 meters of datas
-df1 = df1[df1['distance'] > 10]
-df3 = df3[df3['distance'] > 10]
-df5 = df5[df5['distance'] > 10]
+# But use the calculatuion of the mean distance, else we may (and have) accidentally
+# cut off some rows from some sensors and not from others, causing a crash. 
+mean_dist = np.mean([df1['distance'], df3['distance'], df5['distance']], axis=0)
+df1 = df1[mean_dist > 10]
+df3 = df3[mean_dist > 10]
+df5 = df5[mean_dist > 10]
 
 # Filtre Gaussien
 df1['Value'] = gaussian_filter1d(df1['Value'].values, 0.4)
